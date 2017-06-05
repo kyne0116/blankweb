@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<head>
+    <title>用户管理</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link href="../../iconfont/iconfont.css" rel="stylesheet" />
+	<link href="../../js/themes/default/easyui.css" rel="stylesheet" type="text/css">
+	<link href="../../js/themes/icon.css" rel="stylesheet" type="text/css">
+    <link href="../../css/public.css" rel="stylesheet" type="text/css" />
+    <link href="../../css/pages.css" rel="stylesheet" type="text/css" />
+    <script src="../../js/jquery.min.js" type="text/javascript"></script>
+    <script src="../../js/jquery.easyui.min.js" type="text/javascript"></script>
+    <script src="../../js/jquery.easyui.zjsfile.js" type="text/javascript"></script>
+    <script src="../../js/easyui-lang-zh_CN.js" type="text/javascript"></script>
+    <script src="../../js/jquery.aduq.js" type="text/javascript"></script>
+    <script type="text/javascript">
+		$(function(){
+			//showDialog做为打开对话框的公共class名称   showDialogindex做为打开修改对话框传行的索引   delete做为删除按钮配置命令   deleteid做为删除传值  searchtable做为条件查询的按钮公共class名称
+			var pageparam={
+				"listtable":{
+					"listname":"#userTable",//table列表的id名称，需加#
+					"querycmd":"action/admin/authority/sysuser/query",//table列表的查询命令
+					"contentType":"application/json; charset=utf-8",//table列表的传参方式，如果是json就写，不写默认kv
+					"nowrap": true,//把数据显示在一行里,默认true
+					"frozenColumns":[[
+						{ field: "ck",checkbox:true}
+					]],//固定在左侧的列
+					"columns":[[//列   
+						{ title: "登录标识", field: "loginName", width: 120},
+						{ title: "用户姓名", field: "username", width: 80},
+						{ title: "职务", field: "position", width: 100 },
+						{ title: "办公电话", field: "officePhone", width: 110 },//排序sortable: true
+						{ title: "移动电话", field: "phone", width: 110 },
+						{ title: "所属部门", field: "orgName", width: 180,
+							formatter:function(value,row,index){
+								row.orgName=row.sysOrg.orgName;
+								row.oid=row.sysOrg.id;
+								return row.orgName;
+							}
+						},
+						{
+							field: "opt", title: "操作", width: 180, rowspan: 1,//align：对齐此列的数据，可以用left、right、center
+							formatter: function (value, row,index) {//单元格的格式化函数，需要三个参数：value：字段的值；rowData：行的记录数据；rowIndex：行的索引
+								var g = "<a href='#' class='showDialog' showDialogindex='" + index + "'>【查看】</a>"
+								+"<a href='#' contentType='application/json; charset=utf-8' delete='action/admin/authority/sysuser/delete' deleteid='"+row.id+"'>【删除】</a>"
+								+"<a class='openDialog' idname='id' id='" + row.id + "'>【特殊授权】</a>";
+								return g;
+							}
+						}
+					] ],
+					"pagerbar": [{
+						id:"deleteall",
+						iconCls: 'icon-remove',
+						text:"批量删除&nbsp;"
+					}],
+					"deleteall":{//批量删除deleteall.id要与pagerbar.id相同
+						"id":"deleteall",
+						"url":"action/admin/authority/sysuser/deletes",
+						"contentType":"application/json; charset=utf-8"
+					}
+				},
+				"dialoglisttable":{
+					"dialogid":"#buttons2",//对话框的id
+					"buttons":[{
+						text:"确认",
+						handler:function(){
+							var obj = $('#buttons2').dialog('options');
+							var urlstr = obj["queryParams"];
+							if(btn_sure==1){
+								btn_sure=2;
+								var aa=$("#permissionIds").tree("getChecked");
+								var ids=[]; 
+								for(var i in aa){
+									ids.push(aa[i].key);
+								}
+								web.ajaxgeneral({
+									url:"action/admin/authority/sysuser/createSysUserPermission",
+									data:{"id":urlstr.id,"permissionIds":ids.join(" ")},
+									success:function(data){
+										$.messager.show({
+											title:"提示信息",
+											msg:data.message,
+											timeout:2500,
+											showType:"slide",
+											style:{
+												right:'',
+												top:10,
+												bottom:''
+											}
+										});
+										$("#buttons2").dialog("close");//关闭对话框
+									},sError:function(data){
+										btn_sure=1;
+									},error:function(data){
+										btn_sure=1;
+									}
+								});
+							}
+						}
+					},{
+						text:"关闭",
+						handler:function(){
+							$("#buttons2").dialog("close");
+						}
+					}],
+					"dialogurl":"sysUserAuthorization.html"//对话框页面的路径
+				},
+				"dialogform":{
+					"dialogid":"#buttons",//对话框的id
+					"formname":"#userTableAddForm",//新增或修改对话框的formid需加#
+					"onSubmit":function(param){//在请求加载数据之前触发。返回false可以停止该动作
+						param.sysOrg={"id":$("#oid").combogrid("getValue"),"orgName":$("#orgName").val()};
+						return true;
+					},
+					"insertcmd":"action/admin/authority/sysuser/create",//新增命令
+					"updatacmd":"action/admin/authority/sysuser/update"//修改命令
+				}
+			};
+			loadGrid(pageparam);
+		});
+		//form表单填充数据之前做什么,data为填充数据的集合,isupdate表示是新增还是修改,若为新增则data为{}
+		function beforerender(data,isupdate){
+			if(isupdate){
+				$('.update-readonly').hide();
+			}else{
+				$('.update-readonly').show();
+			}
+		};
+    </script>
+</head>
+<body class="page_body">
+<!--searchform-->
+<form id="userTableQueryForm"> 
+    <table border="0" cellpadding="0" cellspacing="18" width="100%">
+        <tr>
+            <td width="90" align="right">用户姓名：</td><td width="150"><input name="username" type="text" value="" /></td>
+            <td width="90" align="right">职务：</td><td width="150"><input name="position" type="text" value="" /></td>
+			<td></td>
+		</tr>
+		<tr>
+            <td width="90" align="right">办公电话：</td><td width="150"><input name="officePhone" type="text" value="" /></td>
+            <td width="90" align="right">移动电话：</td><td width="150"><input name="phone" type="text" value="" /></td>
+            <td>
+                <div class="button w100">
+                    <a class="fl searchtable"><span>查询</span></a>   
+					<a class="showDialog fr"><span>新增</span></a>
+                </div>
+                </td>
+        </tr>
+    </table>
+</form>
+<!--table-->
+<div class="plr18 userTable"><table id="userTable"></table></div>
+<!--dialog-->
+<div id="buttons2" title="特殊授权" class="easyui-dialog" style="width:800px;height:350px;"></div>
+<!--dialog-->
+<div id="buttons" title="新增或修改" class="easyui-dialog" style="width:800px;height:350px;">
+<form id="userTableAddForm" method="post" contentType="application/json; charset=utf-8" beforerender="beforerender()">
+	<input id="id" name="id" type="hidden" /><input id="orgName" name="orgName" type="hidden" />
+	<table border="0" cellpadding="0" cellspacing="10">
+        <tr class="update-readonly">
+            <td width="100" align="right">登录标识：</td><td><input id="loginName" name="loginName" type="text" /></td>
+            <td colspan="3"></td>
+        </tr>
+		<tr>
+            <td width="100" align="right">用户姓名：</td><td><input id="username" name="username" type="text" /></td>
+            <td colspan="3"></td>
+        </tr>
+		<tr class="update-readonly">
+            <td width="100" align="right">密码：</td><td><input id="password" name="password" type="password" class="easyui-validatebox" validType="password"/></td>
+            <td width="100" align="right">重复密码：</td><td><input id="password1" name="password1" type="password" class="easyui-validatebox" validType="equals['#password']"/></td>
+            <td></td>
+        </tr>
+		<tr>
+            <td width="100" align="right">办公电话：</td><td><input id="officePhone" name="officePhone" type="text" class="easyui-validatebox" validType="phone" /></td>
+            <td width="100" align="right">移动电话：</td><td><input id="phone" name="phone" type="text" class="easyui-validatebox" validType="phone" /></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td width="100" align="right">所属部门：</td><td colspan="3">
+				<!--<input id="parentName" name="parentName" type="text" class="easyui-validatebox" style="width:505px" required='required' />-->
+				<!--<select id="parentId" name="parentId" class="easyui-combobox" data-options="editable:false,contentType:'application/json; charset=utf-8',url:'/maip/action/admin/authority/sysorg/query',method:'post',valueField:'id',textField:'description'" style="width:300px;height:32px;"></select>-->
+				<select id="oid" name="oid" class="easyui-combogrid" data-options="editable:false,
+				contentType:'application/json; charset=utf-8',
+				url:'/maip/action/admin/authority/sysorg/query',
+				method:'post',
+				idField:'id',
+				textField:'orgName',
+				columns:[[   
+						{ title: '组织名称', field: 'orgName', width: 120},
+						{ title: '组织描述', field: 'description', width: 180 },
+						{ title: '上级组织', field: 'parentName', width: 180 }
+					] ]" style="width:505px;height:32px;"></select>
+			</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td width="100" align="right" valign="top">职务：</td><td colspan="3"><textarea id="position" name="position" style="width:550px;height:120px;resize:none;"></textarea></td>
+            <td></td>
+        </tr>
+    </table>
+</form>
+</div>
+</body>
+</html>

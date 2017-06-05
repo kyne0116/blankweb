@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration> 
+    <context id="MySQLTables" targetRuntime="MyBatis3">
+        <!--数据库连接 -->
+        <jdbcConnection driverClass="${jdbc.driverClassName}"
+                        connectionURL="${jdbc.url}"
+                        userId="${jdbc.username}"
+                        password="${jdbc.password}">
+        </jdbcConnection>
+
+        <!--默认false
+           Java type resolver will always use java.math.BigDecimal if the database column is of type DECIMAL or NUMERIC.
+         -->
+        <javaTypeResolver >
+            <property name="forceBigDecimals" value="false" />
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="com.simbest.onelog.admin.authority.model" targetProject="src\main\java">
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="true" />
+        	<property name="constructorBased" value="true" />
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="mappers.test"  targetProject="src\main\resources">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.simbest.onelog.admin.authority.mapper"
+                             targetProject="src\main\java">
+           <property name="enableSubPackages" value="true" />
+           <property name="constructorBased" value="true" />
+        </javaClientGenerator>
+
+        <table tableName="user" domainObjectName="User" />
+    </context>
+</generatorConfiguration>

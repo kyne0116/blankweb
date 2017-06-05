@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+
+	<bean id="ehCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:cache/ehcache.xml" />
+	</bean>
+
+    <!-- 凭证匹配器 -->
+    <bean id="credentialsMatcher" class="com.simbest.cores.app.authority.RetryLimitHashedCredentialsMatcher">
+        <constructor-arg index="0" ref="redisTemplate"/>
+        <constructor-arg index="1" value="${project.artifactId}:shiro_redis_username_cache:"/>
+        <constructor-arg index="2" value="10"/> <!-- 最大尝试登陆错误次数 -->
+        <constructor-arg index="3" value="30"/><!-- 达到最大登陆错误次数后冻结分钟 -->
+        <property name="hashAlgorithmName" value="SHA-1"/>
+        <property name="hashIterations" value="1024"/>
+        <property name="storedCredentialsHexEncoded" value="true"/>
+    </bean>
+	<bean id="allowAllCredentialsMatcher" class="org.apache.shiro.authc.credential.AllowAllCredentialsMatcher"/>
+	
+    <!-- Realm实现 -->
+	<bean id="jdbcRealm" class="com.simbest.cores.admin.authority.service.impl.JDBCRealm">
+		<!-- ShiroDbRealm构造SimpleAuthenticationInfo时，使用了SHA-1加密，因此该凭证匹配器没有用到 -->	
+		<property name="credentialsMatcher" ref="credentialsMatcher"/>
+		<!-- 缓存 根据defaultFilterChainDefinitions配置的页面都进行doGetAuthorizationInfo装载鉴权 -->
+		<!-- true, 动态设置权限后，logout/login后才重新鉴权 -->
+		<!-- false, 动态设置权限后，实时鉴权，但所有URL都进行凭证匹配鉴权，性能低下 -->
+		<!-- AuthorizingRealm 提供了很多清理认证/凭证缓存的方法，可以在动态设置权限后按需求调用 -->
+        <property name="cachingEnabled" value="true"/>
+		<property name="sysUserAdvanceService" ref="sysUserAdvanceService" />
+	</bean>	
+	<bean id="ssoRealm" class="com.simbest.cores.admin.authority.service.impl.SSORealm">		
+		<property name="sysUserAdvanceService" ref="sysUserAdvanceService" />
+		<property name="credentialsMatcher" ref="allowAllCredentialsMatcher"/>
+		<property name="authenticationTokenClass" value="com.simbest.cores.web.filter.SSOAuthenticationToken"/>
+	</bean>
+	<bean id="snsRealm" class="com.simbest.cores.admin.authority.service.impl.SNSRealm">		
+		<property name="sysUserAdvanceService" ref="sysUserAdvanceService" />
+		<property name="credentialsMatcher" ref="allowAllCredentialsMatcher"/>
+		<property name="authenticationTokenClass" value="com.simbest.cores.web.filter.SNSAuthenticationToken"/>
+	</bean>
+
+    <bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="rememberMe"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="2592000"/><!-- 30天 -->
+    </bean>
+
+    <!-- rememberMe管理器 -->
+    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <!-- rememberMe cookie加密的密钥 建议每个项目都不一样 默认AES算法 密钥长度（128 256 512 位）-->
+        <property name="cipherKey"
+                  value="#{T(org.apache.shiro.codec.Base64).decode('4AvVhmFLUs0KTA3Kprsdag==')}"/>
+        <property name="cookie" ref="rememberMeCookie"/>
+    </bean>
+
+    <!-- 会话管理器 -->
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="globalSessionTimeout" value="${redis.session.timeout}"/> <!--默认60分钟session超时-->
+        <property name="deleteInvalidSessions" value="true"/>
+        <property name="sessionValidationScheduler">
+            <bean class="org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler">
+                <property name="interval" value="${redis.validate.interval}"/> <!--5分钟执行一次清理-->
+                <property name="sessionManager" ref="sessionManager"/>
+            </bean>
+        </property>
+        <!-- 是否开启会话验证器任务 默认true -->
+        <property name="sessionValidationSchedulerEnabled" value="true"/>
+        <property name="sessionFactory">
+            <bean class="io.longyuan.shiro.redissession.session.ShiroSessionFactory"/>
+        </property>
+        <property name="sessionDAO" ref="cachingShiroSessionDao"/>
+        <!-- 默认JSESSIONID，同tomcat/jetty在cookie中缓存标识相同，修改用于防止访问404页面时，容器生成的标识把shiro的覆盖掉 -->
+        <property name="sessionIdCookie">
+            <bean class="org.apache.shiro.web.servlet.SimpleCookie">
+                <constructor-arg name="name" value="SHRIOSESSIONID"/>
+            </bean>
+        </property>
+        <property name ="sessionListeners">  
+	    	<list>  
+	    		<!--Session 到期退出，记录用户登出信息-->
+            	<bean class="com.simbest.cores.shiro.ShiroSessionListener"/>
+                <ref bean="sessionListener"/>
+       		</list>  
+        </property>
+    </bean>
+	
+    <bean id="sessionListener" class="io.longyuan.shiro.redissession.listener.ShiroSessionListener" >
+        <property name="sessionDao" ref="cachingShiroSessionDao" />
+        <property name="shiroSessionService" ref="shiroSessionService" />
+    </bean>
+
+    <bean id="cachingShiroSessionDao" class="com.simbest.cores.shiro.SimbestCachingShiroSessionDao">
+        <property name="sessionRepository" ref="shiroSessionRepository"/>
+    </bean>
+
+
+    <bean id="shiroSessionService" class="io.longyuan.shiro.redissession.service.ShiroSessionService">
+        <property name="redisTemplate" ref="redisTemplate"/>
+        <property name="sessionDao" ref="cachingShiroSessionDao"/>
+    </bean>
+
+	<!-- 安全管理器 -->
+     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="authenticator">
+       		<bean class="com.simbest.cores.web.filter.MutilModularRealmAuthenticator"/>
+    	</property> 
+        <property name="realms">
+	        <util:list>
+	            <ref bean="jdbcRealm" />
+	            <ref bean="ssoRealm" /> 
+	            <ref bean="snsRealm" />             
+	        </util:list>
+	    </property>
+        <property name="sessionManager" ref="sessionManager"/>
+        <property name="cacheManager" ref="ehCacheManager"/>
+        <property name="rememberMeManager" ref="rememberMeManager"/>
+    </bean>
+    
+    <!-- 相当于调用SecurityUtils.setSecurityManager(securityManager) -->
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="org.apache.shiro.SecurityUtils.setSecurityManager"/>
+        <property name="arguments" ref="securityManager"/>
+    </bean>
+
+    <!-- 基于Form表单的身份验证过滤器 -->
+	<bean id="authcFilter" class="com.simbest.cores.web.filter.MyFormAuthenticationFilter">
+        <property name="usernameParam" value="username"/>
+        <property name="passwordParam" value="password"/>
+        <property name="rememberMeParam" value="rememberMe"/>
+        <property name="failureKeyAttribute" value="shiroLoginFailure"/>
+    </bean>
+        
+    <!-- SSO单点登录身份验证过滤器 -->    
+    <bean id="ssoAuthcFilter" class="com.simbest.cores.web.filter.SSOAuthorizationFilter">
+    	<!--<property name="authentication" ref="mokaSSOAuthentication"/>-->
+    	<property name="authentication" ref="simpleNameSSOAuthentication"/>
+    </bean>
+        
+    <!-- 重复登录检查过滤器 -->    
+    <bean id="kickoutSessionControlFilter" class="com.simbest.cores.web.filter.KickoutSessionControlFilter">  
+	    <property name="cacheManager" ref="ehCacheManager"/>
+	    <property name="sessionManager" ref="sessionManager"/>  
+	    <property name="kickoutAfter" value="false"/>  
+	    <property name="maxSession" value="1"/>  
+	    <property name="kickoutUrl" value="/action/login?kickout=1"/>  
+	</bean>   
+<!-- 
+    <bean id="jCaptchaValidateFilter" class="com.simbest.cores.web.filter.JCaptchaValidateFilter">
+        <property name="jcaptchaEbabled" value="true"/>
+        <property name="jcaptchaParam" value="jcaptchaCode"/>
+        <property name="failureKeyAttribute" value="shiroLoginFailure"/>
+    </bean>
+ -->   
+    <!-- 多重角色验证过滤器 -->
+    <bean id="anyRolesAuthorizationFilter" class="com.simbest.cores.web.filter.AnyRolesAuthorizationFilter"/> 
+    	
+    <bean id="filterChainManager" class="com.simbest.cores.app.authority.CustomDefaultFilterChainManager">
+        <property name="loginUrl" value="/action/login"/>
+        <property name="successUrl" value="/action/"/>
+        <property name="unauthorizedUrl" value="/redirect/errors/403"/>
+        <property name="customFilters">
+            <util:map>
+                <entry key="authc" value-ref="authcFilter"/>
+                <entry key="ssoAuthc" value-ref="ssoAuthcFilter"/>
+                <entry key="kickout" value-ref="kickoutSessionControlFilter"/>
+                <!--<entry key="jCaptchaValidate" value-ref="jCaptchaValidateFilter"/>-->
+                <entry key="anyRoles" value-ref="anyRolesAuthorizationFilter"/> 
+            </util:map>
+        </property>
+        <property name="defaultFilterChainDefinitions">
+            <value>
+				#/login = jCaptchaValidate,authc
+				/action/login/submit = anon
+				/=authc
+            	/action/login = authc
+				/action/logout = anon
+			    /action/redirect/errors/** = anon				
+				/action/admin/authority/sysuser/updatePassword = user
+				/action/admin/authority/sysuser/submitUpdatePassword = user								
+				<!-- admin下链接地址需要admin用户权限, 取消下述注释后，其他用户要想访问系统管理，必须强制赋予系统管理员角色 -->	
+				####/admin/** = roles[Administrator] 
+				#/admin/** = authc, anyRoles["Supervisor,Administrator"]
+				<!-- anon表示此地址不需要任何权限即可访问 -->
+				#/jcaptcha* = anon
+				/action/login/ssologin = anon					
+				/action/sso/** = ssoAuthc
+                /services/** = anon
+                /services/** = anon
+				<!-- 静态资源不进行拦截，配合applicationContext-servlet -->
+				/**/*.html=anon   
+				/**/*.htm=anon  
+				/**/*.js=anon   
+				/**/*.css=anon   
+				/**/*.png=anon   
+				/**/*.gif=anon   
+				/**/*.jpg=anon 
+				/**/*.jpeg=anon 
+				/**/*.ico=anon 
+				/**/*.swf=anon 
+				/**/*.doc=anon 
+				/**/*.docx=anon 
+				/**/*.xls=anon 
+				/**/*.xlsx=anon 
+				/**/*.ppt=anon 
+				/**/*.pptx=anon 
+				/**/*.pdf=anon 
+				/**/*.eot=anon
+				/**/*.svg=anon
+				/**/*.ttf=anon
+				/**/*.woff=anon
+				/**/*.otf=anon
+                /action/welcome=authc
+                /action/**=kickout,user,authc
+				<!-- 默认过滤器http://shiro.apache.org/web.html#Web-defaultfilters-->	
+				
+            </value>
+        </property>
+    </bean>
+
+    <bean id="filterChainResolver" class="com.simbest.cores.app.authority.CustomPathMatchingFilterChainResolver">
+        <property name="customDefaultFilterChainManager" ref="filterChainManager"/>
+    </bean>
+
+    <!-- Shiro的Web过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="shiroFilter"/>
+        <property name="targetMethod" value="setFilterChainResolver"/>
+        <property name="arguments" ref="filterChainResolver"/>
+    </bean>
+
+    <aop:config proxy-target-class="true"/>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+</beans>

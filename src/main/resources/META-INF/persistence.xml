@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+	
+	<persistence-unit name="ApplicationEntityManager" transaction-type="RESOURCE_LOCAL">
+		<!-- Cores Model Start -->
+		<class>com.simbest.cores.admin.authority.model.SysOrg</class>
+		<class>com.simbest.cores.admin.authority.model.SysUser</class>
+		<class>com.simbest.cores.admin.authority.model.SysRole</class>
+		<class>com.simbest.cores.admin.authority.model.SysGroup</class>
+		<class>com.simbest.cores.admin.authority.model.SysPermission</class>
+		<class>com.simbest.cores.admin.syslog.model.SysLoginInfo</class>
+		<class>com.simbest.cores.admin.syslog.model.SysOperateInfo</class>
+		<class>com.simbest.cores.admin.task.model.TaskTriggerDefinition</class>
+		<class>com.simbest.cores.app.model.ProcessType</class>
+		<class>com.simbest.cores.app.model.ProcessHeader</class>
+		<class>com.simbest.cores.app.model.ProcessStep</class>
+		<class>com.simbest.cores.app.model.ProcessStepConfiguration</class>
+		<class>com.simbest.cores.app.model.ProcessStepCondition</class>
+		<class>com.simbest.cores.app.model.ProcessAuditLog</class>
+		<class>com.simbest.cores.app.model.ProcessAudit</class>
+		<class>com.simbest.cores.app.model.ProcessTask</class>
+        <class>com.simbest.cores.app.model.ProcessTaskCallbackRetry</class>
+        <class>com.simbest.cores.app.model.ProcessTaskCallbackLog</class>
+		<class>com.simbest.cores.app.model.ProcessTrack</class>
+		<class>com.simbest.cores.app.model.ProcessAgent</class>
+		<class>com.simbest.cores.app.model.ProcessStatus</class>
+		<class>com.simbest.cores.app.model.ProcessDraft</class>
+		<class>com.simbest.cores.app.model.FileUploader</class>
+		<!-- Cores Model End -->
+		
+		<!-- 
+		<class>com.simbest.mp.model.MpAccount</class>
+		<class>com.simbest.mp.model.MpMedia</class>
+		<class>com.simbest.mp.model.MpGroup</class>
+		<class>com.simbest.mp.model.MpScene</class>
+		<class>com.simbest.mp.model.MpUserLocation</class>
+		<class>com.simbest.mp.model.MpActivity</class>
+		<class>com.simbest.mp.model.MpActivitySign</class>
+		-->
+	</persistence-unit>
+	
+</persistence>

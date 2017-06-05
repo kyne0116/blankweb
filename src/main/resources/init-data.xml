@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Dbunit 在执行操作时安装XML数据倒序删除，因此存储关联关系的表放到最末尾，以免导致外键约束无法删除 -->
+<dataset>
+	
+	<table name="sys_task_trigger_def">
+		<column>jobname</column>
+		<column>whenmonth</column>
+		<column>whenday</column>
+		<column>whenhour</column>
+		<column>whenminute</column>
+		<column>maxFireTimes</column>
+		<row>
+			<value>monthlyuse</value>
+			<value>*</value>
+			<value>1</value>
+			<value>0</value>
+			<value>59</value>
+			<null/>
+		</row>
+	</table>
+	<table name="app_process_type">
+		<column>typeId</column>
+		<column>typeCode</column>
+		<column>typeDesc</column>		
+		<row><value>1</value><value>A</value><value>日志审计</value></row>
+	</table>
+	<table name="app_process_header">
+		<column>headerId</column>
+		<column>headerCode</column>
+		<column>headerDesc</column>
+		<column>typeId</column>	
+		<column>hversion</column>		
+		<row><value>1</value><value>AR</value><value>主机数据库日志审计</value><value>1</value><value>1</value></row>
+		<row><value>2</value><value>AU</value><value>银企互联应用操作月报上报审批</value><value>1</value><value>1</value></row>
+		<row><value>3</value><value>AUB</value><value>ERP应用操作月报上报审批</value><value>1</value><value>1</value></row>
+	</table>
+	<table name="app_process_step">
+		<column>stepId</column>
+		<column>typeId</column>
+		<column>headerId</column>
+		<column>stepCode</column>
+		<column>stepType</column>
+		<column>stepClass</column>
+		<column>stepDesc</column>
+		<column>passId</column>
+		<column>failId</column>
+		<column>stopId</column>
+		<column>forkFromId</column>
+		<column>ltop</column>
+		<column>lleft</column>	
+		<column>sversion</column>	
+		<row><value>1</value><null /><null /><value>000000</value><value>defaults</value><value>serial</value><value>流程已变更</value><null /><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>2</value><value>1</value><value>1</value><value>AR100</value><value>first</value><value>serial</value><value>系统生成提交</value><value>AR200</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>3</value><value>1</value><value>1</value><value>AR200</value><value>autoChange</value><value>serial</value><value>确认报告</value><value>AR300</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>4</value><value>1</value><value>1</value><value>AR300</value><value>autoChange</value><value>fork</value><value>分支审批</value><value>AR700</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>5</value><value>1</value><value>1</value><value>AR400</value><value>autoChange</value><value>parallel</value><value>部门领导审批</value><value>AR700</value><value>AR200</value><null /><value>AR300</value><null /><null /><value>1</value></row>
+		<row><value>6</value><value>1</value><value>1</value><value>AR500</value><value>autoChange</value><value>parallel</value><value>三级经理审批</value><value>AR700</value><value>AR200</value><null /><value>AR300</value><null /><null /><value>1</value></row>
+		<row><value>7</value><value>1</value><value>1</value><value>AR600</value><value>autoChange</value><value>parallel</value><value>网管领导审批</value><value>AR700</value><value>AR200</value><null /><value>AR300</value><null /><null /><value>1</value></row>
+		<row><value>8</value><value>1</value><value>1</value><value>AR700</value><value>autoChange</value><value>join</value><value>分支汇聚</value><value>AR800</value><null /><null /><value>AR300</value><null /><null /><value>1</value></row>
+		<row><value>9</value><value>1</value><value>1</value><value>AR800</value><value>autoChange</value><value>serial</value><value>确认归档</value><value>AR900</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>10</value><value>1</value><value>1</value><value>AR900</value><value>stop</value><value>serial</value><value>已归档</value><null /><null /><null /><null /><null /><null /><value>1</value></row>		
+		<!-- AU  银企互联应用操作月报 -->
+		<row><value>11</value><value>1</value><value>2</value><value>AU100</value><value>first</value><value>serial</value><value>系统生成提交</value><value>AU200</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>12</value><value>1</value><value>2</value><value>AU200</value><value>autoChange</value><value>serial</value><value>确认报告</value><value>AU300</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>13</value><value>1</value><value>2</value><value>AU300</value><value>autoChange</value><value>serial</value><value>待审核</value><value>AU400</value><value>AU200</value><value>AU500</value><null /><null /><null /><value>1</value></row>
+		<row><value>14</value><value>1</value><value>2</value><value>AU400</value><value>stop</value><value>serial</value><value>已归档</value><null /><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>15</value><value>1</value><value>2</value><value>AU500</value><value>errorStop</value><value>serial</value><value>申请已拒绝</value><null /><null /><null /><null /><null /><null /><value>1</value></row>
+		<!-- AUB  REP应用操作月报 -->
+		<row><value>16</value><value>1</value><value>3</value><value>AUB100</value><value>first</value><value>serial</value><value>系统生成提交</value><value>AUB200</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>17</value><value>1</value><value>3</value><value>AUB200</value><value>autoChange</value><value>serial</value><value>确认报告</value><value>AUB300</value><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>18</value><value>1</value><value>3</value><value>AUB300</value><value>autoChange</value><value>serial</value><value>待审核</value><value>AUB400</value><value>AUB200</value><value>AUB500</value><null /><null /><null /><value>1</value></row>
+		<row><value>19</value><value>1</value><value>3</value><value>AUB400</value><value>stop</value><value>serial</value><value>已归档</value><null /><null /><null /><null /><null /><null /><value>1</value></row>
+		<row><value>20</value><value>1</value><value>3</value><value>AUB500</value><value>errorStop</value><value>serial</value><value>申请已拒绝</value><null /><null /><null /><null /><null /><null /><value>1</value></row>		
+	</table>
+	<table name="app_process_audit">
+		<column>submitUserId</column>
+		<column>submitOrgId</column>
+		<column>subjectType</column>
+		<column>subjects</column>
+		<column>processStepId</column>
+		<column>aversion</column>	
+		<row><null /><null /><value>audit_role</value><value>4</value><value>2</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>8</value><value>3</value><value>1</value></row>
+		<row><null /><null /><value>audit_both</value><null /><value>4</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>5</value><value>5</value><value>1</value></row>	
+		<row><null /><null /><value>audit_user</value><value>6</value><value>6</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>7</value><value>7</value><value>1</value></row>
+		<row><null /><null /><value>audit_both</value><null /><value>8</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>8</value><value>9</value><value>1</value></row>	
+		<row><null /><null /><value>audit_user</value><value>8</value><value>10</value><value>1</value></row>
+		<!-- AU  银企互联应用操作月报 -->
+		<row><null /><null /><value>audit_role</value><value>4</value><value>11</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>8</value><value>12</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>11</value><value>13</value><value>1</value></row>
+		<row><null /><null /><value>audit_role</value><value>4</value><value>14</value><value>1</value></row>
+		<!-- AUB  REP应用操作月报 -->
+		<row><null /><null /><value>audit_role</value><value>4</value><value>16</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>8</value><value>17</value><value>1</value></row>
+		<row><null /><null /><value>audit_user</value><value>10</value><value>18</value><value>1</value></row>
+		<row><null /><null /><value>audit_role</value><value>4</value><value>19</value><value>1</value></row>
+		
+		
+	</table>	
+	<table name="app_process_step_configuration">
+		<!-- <column>configurationId</column>
+	    <column>logic</column>
+	    <column>subjectType</column>
+	    <column>subjects</column>
+	    <column>processStepId</column>
+	    <column>cversion</column>
+	    <row>
+	      <value>1</value>
+	      <value>And</value>
+	      <value>audit_role</value>
+	      <value>3</value>
+	      <value>33</value>
+	      <value>1</value>
+	      <null/>
+	    </row> -->
+	</table>
+	<table name="app_process_step_condition">	
+	    <!-- <column>name</column>
+	    <column>opt</column>
+	    <column>value</column>
+	    <column>configurationId</column>
+	    <row>
+	      <value>isAppraise</value>
+	      <value>eq</value>
+	      <value>false</value>
+	      <value>1</value>
+	      <null/>
+	    </row> -->
+	</table>
+	<table name="sys_org">
+	    <column>id</column>
+	    <column>createDate</column>
+	    <column>updateDate</column>
+	    <column>description</column>
+	    <column>orgCode</column>
+	    <column>orgName</column>
+	    <column>parent_id</column>
+	    <row>
+	      <value>1</value>
+	      <value><![CDATA[2014-11-20 00:00:00.0]]></value>
+	      <null/>
+	      <null/>
+	      <value>10</value>
+	      <value>省公司</value>
+	      <null/>
+	    </row>
+
+  </table>
+
+	<table name="sys_permission">
+		<column>id</column>
+		<column>createDate</column>
+		<column>description</column>
+		<column>name</column>
+		<column>type</column>
+		<column>url</column>
+		<column>parent_id</column>
+		<column>icon</column>
+		<row>
+			<value>1</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>日志管理平台</value>
+			<value>system</value>
+			<value>system</value>
+			<value>/</value>
+			<null />
+			<null />
+		</row>
+		<row>
+			<value>10000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的桌面</value>
+			<value>desktop:module</value>
+			<value>module</value>
+			<value>/action/welcome</value>
+			<value>1</value>
+			<value><![CDATA[&#xe609;]]></value>
+		</row>
+		<row>
+			<value>20000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的工作</value>
+			<value>workspace:module</value>
+			<value>module</value>
+			<value></value>
+			<value>1</value>
+			<value><![CDATA[&#xe649;]]></value>
+		</row>
+		<row>
+			<value>21000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的待办</value>
+			<value>app:process:task:menu</value>
+			<value>menu</value>
+			<value>/html/app/process/processTask.html</value>
+			<value>20000</value>
+			<value><![CDATA[&#xe658;]]></value>
+		</row>
+		<row>
+			<value>22000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的申请</value>
+			<value>app:process:apply:menu</value>
+			<value>menu</value>
+			<value>/html/app/process/processApply.html</value>
+			<value>20000</value>
+			<value><![CDATA[&#xe67f;]]></value>
+		</row>
+		<row>
+			<value>23000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的已办</value>
+			<value>app:process:join:menu</value>
+			<value>menu</value>
+			<value>/html/app/process/processJoin.html</value>
+			<value>20000</value>
+			<value><![CDATA[&#xe65d;]]></value>
+		</row>
+		<row>
+			<value>24000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>我的草稿</value>
+			<value>app:process:draft:menu</value>
+			<value>menu</value>
+			<value>/html/app/process/processDraft.html</value>
+			<value>20000</value>
+			<value><![CDATA[&#xe624;]]></value>
+		</row>
+		
+		<row>
+			<value>60000</value>
+			<value><![CDATA[2014-08-07 01:02:03.0]]></value>
+			<value>系统管理</value>
+			<value>admin:module</value>
+			<value>module</value>
+			<value></value>
+			<value>1</value>
+			<value><![CDATA[&#xe637;]]></value>
+		</row>
+		<row>
+			<value>61000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>权限管理</value>
+			<value>admin:authority:menu</value>
+			<value>menu</value>
+			<value></value>
+			<value>60000</value>
+			<value><![CDATA[&#xe682;]]></value>
+		</row>
+		<row>
+			<value>61100</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>部门管理信息</value>
+			<value>admin:authority:sysorg:submenu</value>
+			<value>submenu</value>
+			<value>/action/admin/authority/sysorg/sysOrgList</value>
+			<value>61000</value>
+			<value><![CDATA[&#xe652;]]></value>
+		</row>
+		<row>
+			<value>61101</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>查询部门</value>
+			<value>admin:authority:sysorg:query</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysorg/query</value>
+			<value>61100</value>
+			<null />
+		</row>
+		<row>
+			<value>61102</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>新增部门</value>
+			<value>admin:authority:sysorg:create</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysorg/create</value>
+			<value>61100</value>
+			<null />
+		</row>
+		<row>
+			<value>61103</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改部门</value>
+			<value>admin:authority:sysorg:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysorg/update</value>
+			<value>61100</value>
+			<null />
+		</row>
+		<row>
+			<value>61104</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>删除部门</value>
+			<value>admin:authority:sysorg:delete</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysorg/delete</value>
+			<value>61100</value>
+			<null />
+		</row>
+		<row>
+			<value>61200</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>用户管理信息</value>
+			<value>admin:authority:sysuser:submenu</value>
+			<value>submenu</value>
+			<value>/action/admin/authority/sysuser/sysUserList</value>
+			<value>61000</value>
+			<value><![CDATA[&#xe668;]]></value>
+		</row>
+		<row>
+			<value>61201</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>查询用户</value>
+			<value>admin:authority:sysuser:query</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/query</value>
+			<value>61200</value>
+			<null />
+		</row>
+		<row>
+			<value>61202</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>新增用户</value>
+			<value>admin:authority:sysuser:create</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/create</value>
+			<value>61200</value>
+			<null />
+		</row>
+		<row>
+			<value>61203</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改用户</value>
+			<value>admin:authority:sysuser:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/update</value>
+			<value>61200</value>
+			<null />
+		</row>
+		<row>
+			<value>61204</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>删除用户</value>
+			<value>admin:authority:sysuser:delete</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/delete</value>
+			<value>61200</value>
+			<null />
+		</row>
+		<row>
+			<value>61205</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>初始化用户密码</value>
+			<value>admin:authority:sysuser:saveNewKeys</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/saveNewKeys</value>
+			<value>61200</value>
+			<null />
+		</row>
+		<row>
+			<value>61300</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>角色管理信息</value>
+			<value>admin:authority:sysrole:submenu</value>
+			<value>submenu</value>
+			<value>/action/admin/authority/sysrole/sysRoleList</value>
+			<value>61000</value>
+			<value><![CDATA[&#xe666;]]></value>
+		</row>
+		<row>
+			<value>61301</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>查询角色</value>
+			<value>admin:authority:sysrole:query</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysrole/query</value>
+			<value>61300</value>
+			<null />
+		</row>
+		<row>
+			<value>61302</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>新增角色</value>
+			<value>admin:authority:sysrole:create</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysrole/create</value>
+			<value>61300</value>
+			<null />
+		</row>
+		<row>
+			<value>61303</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改角色</value>
+			<value>admin:authority:sysrole:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysrole/update</value>
+			<value>61300</value>
+			<null />
+		</row>
+		<row>
+			<value>61304</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>删除角色</value>
+			<value>admin:authority:sysrole:delete</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysrole/delete</value>
+			<value>61300</value>
+			<null />
+		</row>
+		<row>
+			<value>61400</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>资源管理信息</value>
+			<value>admin:authority:syspermission:submenu</value>
+			<value>submenu</value>
+			<value><![CDATA[/action/admin/authority/syspermission/sysPermissionList
+			]]></value>
+			<value>61000</value>
+			<value><![CDATA[&#xe67d;]]></value>
+		</row>
+		<row>
+			<value>61401</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>查询操作资源</value>
+			<value>admin:authority:syspermission:query</value>
+			<value>button</value>
+			<value>/action/admin/authority/syspermission/query</value>
+			<value>61400</value>
+			<null />
+		</row>
+		<row>
+			<value>61402</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>新增操作资源</value>
+			<value>admin:authority:syspermission:create</value>
+			<value>button</value>
+			<value>/action/admin/authority/syspermission/create</value>
+			<value>61400</value>
+			<null />
+		</row>
+		<row>
+			<value>61403</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改操作资源</value>
+			<value>admin:authority:syspermission:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/syspermission/update</value>
+			<value>61400</value>
+			<null />
+		</row>
+		<row>
+			<value>61404</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>删除操作资源</value>
+			<value>admin:authority:syspermission:delete</value>
+			<value>button</value>
+			<value>/action/admin/authority/syspermission/delete</value>
+			<value>61400</value>
+			<null />
+		</row>
+		<row>
+			<value>61500</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>用户角色授权信息</value>
+			<value>admin:authority:sysuser:userRole:submenu</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuser/userRole/userRoleList</value>
+			<value>61000</value>
+			<null />
+		</row>
+		<row>
+			<value>61501</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改用户角色授权</value>
+			<value>admin:authority:sysuser:userRole:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysuer/userRole/update</value>
+			<value>61500</value>
+			<null />
+		</row>
+		<row>
+			<value>61600</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>用户资源授权信息</value>
+			<value>admin:authority:sysrole:rolePermission:submenu</value>
+			<value>button</value>
+			<value><![CDATA[/action/admin/authority/sysrole/rolePermission/rolePermissionList
+			]]></value>
+			<value>61000</value>
+			<null />
+		</row>
+		<row>
+			<value>61601</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>修改用户资源授权</value>
+			<value>admin:authority:sysrole:rolePermission:update</value>
+			<value>button</value>
+			<value>/action/admin/authority/sysrole/rolePermission/update</value>
+			<value>61600</value>
+			<null />
+		</row>
+		
+		<row>
+			<value>63000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>业务流程配置</value>
+			<value>admin:paras:menu</value>
+			<value>menu</value>
+			<value></value>
+			<value>60000</value>
+			<value><![CDATA[&#xe62f;]]></value>
+		</row>
+		<row>
+			<value>63100</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>业务流程类型</value>
+			<value>admin:paras:process:einfo</value>
+			<value>submenu</value>
+			<value><![CDATA[/html/app/process/workFlow.html?headerCode=IW]]></value>
+			<value>63000</value>
+			<value><![CDATA[&#xe68c;]]></value>
+		</row>
+		<row>
+			<value>63200</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>业务流程头</value>
+			<value>admin:paras:process:person</value>
+			<value>submenu</value>
+			<value><![CDATA[/html/app/process/workFlow.html?typeId=2&headerId=6]]></value>
+			<value>63000</value>
+			<value><![CDATA[&#xe655;]]></value>
+		</row>
+		<row>
+			<value>63300</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>业务流程环节</value>
+			<value>admin:paras:process:step:submenu</value>
+			<value>submenu</value>
+			<value>/action/admin/paras/process/stepList</value>
+			<value>63000</value>
+			<value><![CDATA[&#xe68d;]]></value>
+		</row>
+		<row>
+			<value>63400</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>业务流程审批</value>
+			<value>admin:paras:process:audit:submenu</value>
+			<value>submenu</value>
+			<value>/action/admin/paras/process/audit/auditList</value>
+			<value>63000</value>
+			<value><![CDATA[&#xe68e;]]></value>
+		</row>
+		<row>
+			<value>63500</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>自定义触发跃迁</value>
+			<value>admin:paras:process:configuration:query</value>
+			<value>submenu</value>
+			<value>/action/admin/paras/process/configurationList</value>
+			<value>63000</value>
+			<value><![CDATA[&#xe632;]]></value>
+		</row>
+		<row>
+			<value>63600</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>自定义跃迁条件</value>
+			<value>admin:paras:process:condition:query</value>
+			<value>submenu</value>
+			<value>/action/admin/paras/process/conditionList</value>
+			<value>63000</value>
+			<value><![CDATA[&#xe68b;]]></value>
+		</row>
+		<row>
+			<value>64000</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>系统日志</value>
+			<value>admin:syslog:menu</value>
+			<value>menu</value>
+			<value></value>
+			<value>60000</value>
+			<value><![CDATA[&#xe613;]]></value>
+		</row>
+		<row>
+			<value>64100</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>用户登录日志</value>
+			<value>admin:syslog:login:submenu</value>
+			<value>submenu</value>
+			<value>/</value>
+			<value>64000</value>
+			<value><![CDATA[&#xe63d;]]></value>
+		</row>
+		<row>
+			<value>64200</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<value>用户操作日志</value>
+			<value>admin:syslog:operate:submenu</value>
+			<value>submenu</value>
+			<value>/</value>
+			<value>64000</value>
+			<value><![CDATA[&#xe617;]]></value>
+		</row>
+	</table>
+	<table name="sys_role">
+		<column>id</column>
+		<column>createDate</column>
+		<column>updateDate</column>
+		<column>description</column>
+		<column>name</column>
+		<column>type</column>
+		<row>
+			<value>1</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<null />
+			<value>超级管理员</value>
+			<value>Supervisor</value>
+			<value>系统角色</value>
+		</row>
+		<row>
+			<value>2</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<null />
+			<value>系统管理员</value>
+			<value>Administrator</value>
+			<value>系统角色</value>
+		</row>
+		<row>
+			<value>3</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<null />
+			<value>运营管理员</value>
+			<value>Manager</value>
+			<value>业务角色</value>
+		</row>		
+		<row>
+			<value>4</value>
+			<value><![CDATA[2014-11-20 00:00:00.0]]></value>
+			<null />
+			<value>拟制人</value>
+			<value>submitter</value>
+			<value>系统角色</value>
+		</row>
+		
+	</table>
+	<table name="sys_user">
+    <column>id</column>
+    <column>email</column>
+    <column>headimgurl</column>
+    <column>loginName</column>
+    <column>officePhone</column>
+    <column>password</column>
+    <column>phone</column>
+    <column>position</column>
+    <column>salt</column>
+    <column>userCode</column>
+    <column>username</column>
+    <column>org_id</column>
+    <column>createDate</column>
+    <column>createUserCode</column>
+    <column>createUserId</column>
+    <column>createUserName</column>
+    <column>accesstoken</column>
+    <column>userType</column>
+<row><value>1</value><null/><null/><value>supervisor</value><null/><value>05662bae0cfd86d098ff9e3dfc03670a0272f546</value><null/><null/><value>c3338742b1dc6554</value><value>supervisor</value><value>系统管理员</value><value>1</value><value><![CDATA[2015-05-02 00:11:34.0]]></value><value>admin</value><value>2</value><value>系统管理员</value><null/><value>1</value></row>
+<row><value>2</value><null/><value>images/users_images.png</value><value>admin</value><null/><value>05662bae0cfd86d098ff9e3dfc03670a0272f546</value><null/><null/><value>c3338742b1dc6554</value><value>admin</value><value>系统管理员</value><value>1</value><value><![CDATA[2015-05-02 00:11:34.0]]></value><value>admin</value><value>2</value><value>系统管理员</value><null/><value>0</value></row>
+<row><value>3</value><null/><value>images/users_images2.png</value><value>manager</value><null/><value>05662bae0cfd86d098ff9e3dfc03670a0272f546</value><null/><null/><value>c3338742b1dc6554</value><value>manager</value><value>运营管理员</value><value>1</value><value><![CDATA[2015-05-02 00:11:34.0]]></value><value>admin</value><value>2</value><value>系统管理员</value><null/><value>0</value></row>
+<row><value>4</value><null/><value>images/users_images2.png</value><value>guest</value><null/><value>613fab389d443cc0b3202acb8d08f579175a7486</value><null/><null/><value>a4c9f1b028615e98</value><value>guest</value><value>匿名用户</value><value>1</value><value><![CDATA[2015-05-02 00:11:34.0]]></value><value>admin</value><value>2</value><value>系统管理员</value><null/><value>0</value></row>
+</table>
+	<table name="sys_role_permission">
+		<column>role_id</column>
+		<column>permission_id</column>
+		<row><value>1</value><value>1</value></row>
+
+	</table>
+	<table name="sys_user_role">
+		<column>user_id</column>
+		<column>role_id</column>
+		<row><value>1</value><value>1</value></row>
+		<row><value>2</value><value>2</value></row>
+		<row><value>3</value><value>3</value></row>
+	</table>
+	
+	<table name="sys_user_permission">
+		<column>user_id</column>
+		<column>permission_id</column>
+	</table>
+	
+	
+</dataset>
+	

@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>手机办公版本数据列表</title>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Expires" content="0"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+	<meta name="format-detaction/anonymous" content="telephone=no"/>
+    <link href="../iconfont/iconfont.css" rel="stylesheet" />
+    <!--字体图标-->
+    <link href="../css/phone.css" rel="stylesheet" />
+    <!--色彩配置专用样式-->
+    <script src="../js/m.zepto.1.1.6.js"></script>
+    <script src="../js/m.cselector.config.js"></script>
+    <script src="../js/m.cselector.1.0.js"></script>
+	<style type="text/css">
+	#versionlist{padding:0px 15px;}
+	#versionlist li{border-bottom:1px solid #e6e6e6;padding:10px 0;color:#333;}
+	#versionlist li h5{font-size:20px;padding:5px 0;}
+	#versionlist li font{color:#999999;}
+	#versionlist li p{padding-top:8px;word-break:break-all;}
+	#versionlist li a.more{color:#48b4ff;}
+	#versionlist li font.versionDate{font-size:14px;padding:5px 0 0;}
+	</style>
+	<script type="text/javascript">
+	function beforerenderrow(datai){
+		if(datai.updateContent.length>100){
+			datai.updateContent=datai.updateContent.substring(0,100)+"&nbsp;...&nbsp;<a path='"+datai.versionId+"' class='more'>更多</a>";
+			datai.updateContent=datai.updateContent.replace(new RegExp("\n", 'g'), "<br>");
+		}
+		if(datai.forceUpdate){
+			datai.forceUpdateinfo="【强制更新】";
+		}else{
+			datai.forceUpdateinfo="";
+		}
+	};
+	function beforesearch(){
+		window.versionlistpara={};
+		if(navigator.userAgent.indexOf("iPhone") > -1){
+			window.versionlistpara.type="ios";
+		}
+		if(navigator.userAgent.indexOf("Android") > -1){
+			window.versionlistpara.type="android";
+		}
+		return true;
+	};
+	$(function(){
+		$("#versionlist li a.more").live("click",function(){
+			var $t=$(this);
+			var versionId=$t.attr("path");
+			zjs.cmd({
+				cmd:"action/anonymous/version/info/myGetOne",
+				para:{"versionId":versionId},
+				contentType:"application/json; charset=utf-8",
+				callback:function(data){
+					$t.parent().html(data.updateContent.replace(new RegExp("\n", 'g'), "<br>"));
+				}
+			});
+		});
+	});
+	</script>
+</head>
+<body>
+<ul id="versionlist" onlyserver="true" cmd-select="action/anonymous/version/info/myQuery" beforesearch="beforesearch()" contentType="application/json; charset=utf-8" htmlbox="updateContent" beforerenderrow="beforerenderrow" pulltorefresh="true" nomsg="true" dateformat="yyyy年MM月dd日" style="display:none;">
+	<li id="{{versionId}}" class="uls"><h5>{{versionName}}<font class="fr versionDate">{{versionDate}}</font></h5><font class="mr10">版本号：{{versionCode}}</font><font class="mr10">大小：{{appSize}}M</font><font>{{forceUpdateinfo}}</font><p>{{updateContent}}</p></li>
+</ul>
+</body>
+</html>

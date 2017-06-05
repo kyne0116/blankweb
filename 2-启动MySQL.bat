@@ -1,0 +1,3 @@
+call mysqld
+
+pause

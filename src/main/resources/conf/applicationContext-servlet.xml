@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-autowire="byName"
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<!-- 自动扫描且只扫描@Controller -->
+	<context:component-scan base-package="com.simbest" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+		<context:include-filter type="regex" expression=".web.*Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" /> 		
+		<context:exclude-filter type="annotation" expression="org.springframework.transaction.annotation.Transactional"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
+
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">	
+			<ref bean="stringConverter"/>
+	    	<ref bean="jackson2Converter"/>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	  
+	<bean id="stringConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
+		<constructor-arg value="UTF-8" />
+	</bean>			
+	<bean id="jackson2Converter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="prettyPrint" value="false" />
+		<property name="objectMapper">
+        	<bean class="com.simbest.cores.utils.json.JacksonObjectMapperConfig"/>
+        </property>
+	</bean>
+				
+	<!-- <mvc:default-servlet-handler/>  -->
+	<!-- 配置静态资源，直接映射到对应的文件夹，不被DispatcherServlet处理，3.0.4新增功能 -->	
+	<mvc:resources location="/" mapping="/**/*.html"/>  
+	<mvc:resources location="/" mapping="/**/*.htm"/> 
+	<mvc:resources location="/" mapping="/**/*.js"/>  
+	<mvc:resources location="/" mapping="/**/*.css"/>  
+	<mvc:resources location="/" mapping="/**/*.png"/>  
+	<mvc:resources location="/" mapping="/**/*.gif"/>  
+	<mvc:resources location="/" mapping="/**/*.jpg"/>
+	<mvc:resources location="/" mapping="/**/*.jpeg"/>
+	<mvc:resources location="/" mapping="/**/*.ico"/>
+	<mvc:resources location="/" mapping="/**/*.swf"/>
+	<mvc:resources location="/" mapping="/**/*.doc"/>
+	<mvc:resources location="/" mapping="/**/*.docx"/>
+	<mvc:resources location="/" mapping="/**/*.xls"/>
+	<mvc:resources location="/" mapping="/**/*.xlsx"/>
+	<mvc:resources location="/" mapping="/**/*.ppt"/>
+	<mvc:resources location="/" mapping="/**/*.pptx"/>
+	<mvc:resources location="/" mapping="/**/*.pdf"/>
+	<mvc:resources location="/" mapping="/**/*.eot"/>
+	<mvc:resources location="/" mapping="/**/*.svg"/>
+	<mvc:resources location="/" mapping="/**/*.ttf"/>
+	<mvc:resources location="/" mapping="/**/*.woff"/>
+	<mvc:resources location="/" mapping="/**/*.otf"/>
+	
+	<!-- 应用首页 -->
+	<mvc:view-controller path="/" view-name="redirect:/action/"/>
+    
+    <bean id="contentNegotiatingViewResolver"  
+        class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">  
+        <property name="order" value="1" />
+      	<!-- 设置为true以忽略对Accept Header的支持-->  
+       	<property name="ignoreAcceptHeader" value="true"/>  
+       	<!-- 用于开启 /userinfo/123?format=json 的支持 -->  
+		<property name="favorParameter" value="false"/>
+     	<!-- 在没有扩展名时即: "/user/1" 时的默认展现形式 -->  
+		<property name="defaultContentType" value="text/html"/>  
+	  	<!-- 扩展名至mimeType的映射,即 /user.json => application/json -->  
+        <property name="mediaTypes">  
+            <map>                
+            	<entry key="atom" value="application/atom+xml" />   
+                <entry key="json" value="application/json" />  
+                <entry key="xml" value="application/xml" />
+                <entry key="html" value="text/html" />
+                <!-- 
+                <entry key="jpeg" value="image/jpeg" />  
+                <entry key="png" value="image/png" />
+				<entry key="gif" value="image/gif" />
+                <entry key="pdf" value="application/pdf" />
+                <entry key="xsl" value="application/vnd.ms-excel" />  
+                <entry key="xslx" value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /> 
+                <entry key="doc" value="application/msword" />
+                <entry key="docx" value="application/vnd.openxmlformats-officedocument.wordprocessingml.document" /> -->   
+            </map>  
+        </property>
+        <property name="viewResolvers">  
+		    <list>  
+		        <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
+					<property name="prefix" value="/WEB-INF/view/" /> 
+					<property name="suffix" value=".jsp" /> 
+				</bean>
+		    </list>  
+		</property> 
+        <property name="defaultViews">
+		    <list>		     
+		      <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+		    </list>
+		</property>
+    </bean>  
+
+	<bean id="multipartResolver"
+		class="com.simbest.cores.web.CustomMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/> 
+		<!-- 设置上传文件的最大尺寸为20MB -->
+		<property name="maxUploadSize" value="20971520"/>
+        <property name="fileTypes">
+            <set>
+                <value>png</value>
+                <value>gif</value>
+                <value>jpeg</value>
+                <value>jpg</value>
+                <value>xls</value>
+                <value>xlsx</value>
+                <value>doc</value>
+                <value>docx</value>
+                <value>pdf</value>
+                <value>7z</value>
+                <value>rar</value>
+                <value>zip</value>
+            </set>
+        </property>
+	</bean>
+
+	<aop:aspectj-autoproxy/>  
+	<!-- 拦截Controller 操作日志 -->
+	<bean class="com.simbest.cores.app.aop.SysOperateInfoAspect" />
+	
+	<!-- 控制器异常处理 
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"/>-->
+    <bean class="com.simbest.cores.web.ExceptionControllerAdvice"/> 
+   
+	<!-- RedirectController可以无需预先定义url，直接便于JSP页面映射 -->
+	
+	<!-- 默认无映射匹配处理器 -->	
+	<!-- 注释mvc:default-servlet-handler, 以便可以专门用于处理404错误 -->
+	<bean id="pageNotFoundController" class="com.simbest.cores.web.PageNotFoundController"/> 
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="2147483647"/><!-- 低于mvc:resources 默认值21474836460 -->
+		<property name="mappings">
+			<props>
+				<prop key="/*/**">pageNotFoundController</prop>
+			</props>
+		</property>
+	</bean>
+
+</beans> 

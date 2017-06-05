@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<head>
+    <title>授权管理</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link href="../../iconfont/iconfont.css" rel="stylesheet" />
+	<link href="../../js/themes/default/easyui.css" rel="stylesheet" type="text/css">
+	<link href="../../js/themes/icon.css" rel="stylesheet" type="text/css">
+    <link href="../../css/public.css" rel="stylesheet" type="text/css" />
+    <link href="../../css/pages.css" rel="stylesheet" type="text/css" />
+    <script src="../../js/jquery.min.js" type="text/javascript"></script>
+    <script src="../../js/jquery.easyui.min.js" type="text/javascript"></script>
+    <script src="../../js/jquery.easyui.zjsfile.js" type="text/javascript"></script>
+    <script src="../../js/easyui-lang-zh_CN.js" type="text/javascript"></script>
+    <script src="../../js/jquery.aduq.js" type="text/javascript"></script>
+    <script type="text/javascript">
+		var btn_sure=1;
+		$(function(){	
+			//用户和权限选项卡
+			$(".choose a").click(function(){
+				$(this).addClass("a_hover").siblings().removeClass("a_hover");
+				var id=$(this).attr("id");
+				$("#"+id+"Ids").show().siblings().hide();
+				if(id=="user"){
+					$("#submit").attr("path","user").find("span").html("保存用户角色");
+				}else{
+					$("#submit").attr("path","permission").find("span").html("保存角色权限");
+				}
+			});
+			//加载角色列表
+			var ajaxopts={
+				url:"action/admin/authority/sysrole/query",
+				contentType:"application/json; charset=utf-8",
+				data:{"pageindex":1,"pagesize":2000},
+				success:function(data){
+					var datas=[];
+					datas.push({"id":"","description":"请选择"});
+					$("#roleId").combobox({
+						panelHeight:"auto",
+						valueField:"id",
+						textField:"description",
+						data:datas.concat(data.data.Datas),
+						onChange:function(nv,ov){
+							if(nv!=""){
+								$("#userIds").tree({
+									url:web.rootdir+"action/admin/authority/sysuser/userRole/getUsersRoleTreeData/0/"+nv,
+									method:"post",
+									checkbox:true,//是否在每一个借点之前都显示复选框
+									lines:true,//是否显示树控件上的虚线
+									animate:true,//节点在展开或折叠的时候是否显示动画效果
+									contentType:"application/json; charset=utf-8",
+									recursive:"id|key,checked|select,text|title",//数据不对应easyuitree要求
+									firstnode:true//默认展开一级
+								});
+								$("#permissionIds").tree({
+									url:web.rootdir+"action/admin/authority/sysrole/rolePermission/getPermissionsTreeData/"+nv,
+									method:"post",
+									checkbox:true,//是否在每一个借点之前都显示复选框
+									lines:true,//是否显示树控件上的虚线
+									animate:true,//节点在展开或折叠的时候是否显示动画效果
+									contentType:"application/json; charset=utf-8",
+									recursive:"id|key,checked|select,text|title",//数据不对应easyuitree要求
+									firstnode:true//默认展开一级
+								});
+							}
+						}
+					});			
+				}
+			};
+			web.ajaxgeneral(ajaxopts);
+			//单击保存
+			$("#submit").click(function(){
+				if(btn_sure==1){
+					btn_sure=2;
+					var roleId=$("#roleId").combobox("getValue");
+					if(roleId!=""){
+						var path=$(this).attr("path");
+						var url="";
+						if(path=="user"){
+							url="action/admin/authority/sysuser/userRole/submit";
+						}else{
+							url="action/admin/authority/sysrole/rolePermission/submit";
+						}
+						var Idsv={}; 
+						$("#permissionIds,#userIds").each(function(i,v){
+							var aa=$(v).tree("getChecked");
+							var ids=[]; 
+							for(var i in aa){
+								ids.push(aa[i].key);
+							}
+							Idsv[$(v).attr("id")]=ids;
+						});
+						web.ajaxgeneral({
+							url:url,
+							data:{"roleId":roleId,"permissionIds":Idsv.permissionIds.join(" "),"userIds":Idsv.userIds.join(" ")},
+							success:function(data){
+								$.messager.show({
+									title:"提示信息",
+									msg:data.message,
+									timeout:2500,
+									showType:"slide",
+									style:{
+										right:'',
+										top:10,
+										bottom:''
+									}
+								});
+								setTimeout(function(){
+									btn_sure=1;
+								},2500)
+							},sError:function(data){
+								btn_sure=1;
+							},error:function(data){
+								btn_sure=1;
+							}
+						});
+					}else{
+						$.messager.alert("提示信息","请选择要操作的角色", 'warning');
+						btn_sure=1;
+					}
+				}else{
+					$.messager.alert("提示信息","正在提交中请稍等...", 'warning');
+				}
+			});
+		});
+    </script>
+</head>
+<body class="page_body">
+<table border="0" cellpadding="0" cellspacing="18" width="700px"> 
+	<tr>
+        <td width="80" align="right">选择角色：</td>
+		<td width="120">
+			<select id="roleId" class="easyui-combobox" name="roleId" style="width:120px;height:32px;"></select>  
+		</td>
+		<td><font class="col_r">*角色必选</font></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td colspan="2">			
+            <div class="button choose">
+				<a class="a_left a_hover" id="user"><span>用&nbsp;&nbsp;&nbsp;&nbsp;户</span></a><a id="permission" class="a_right"><span>权&nbsp;&nbsp;&nbsp;&nbsp;限</span></a>
+            </div>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td colspan="2" class="tree">
+			<ul id="userIds"></ul> 
+			<ul id="permissionIds" class="hide"></ul> 
+		</td>
+	</tr>
+    <tr>
+		<td></td>
+        <td colspan="2">
+            <div class="button">
+                <a id="submit" path="user"><span>保存用户角色</span></a>
+            </div>
+    </tr>
+</table>
+</body>
+</html>

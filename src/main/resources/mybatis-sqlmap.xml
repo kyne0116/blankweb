@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!-- <!DOCTYPE configuration
+  PUBLIC '-//mybatis.org//DTD Config 3.0//EN'
+  'http://mybatis.org/dtd/mybatis-3-config.dtd'>
+-->
+
+<!DOCTYPE configuration
+  PUBLIC '-//mybatis.org//DTD Config 3.0//EN'
+  'dtd/mybatis-3-config.dtd'>
+
+<!--
+    plugins在配置文件中的位置必须符合要求，否则会报错，顺序如下:
+    properties?, settings?, 
+    typeAliases?, typeHandlers?, 
+    objectFactory?,objectWrapperFactory?, 
+    plugins?, 
+    environments?, databaseIdProvider?, mappers?
+-->
+
+<configuration>
+	<properties resource='jdbc.properties'/>
+	
+	<settings>
+		<setting name="cacheEnabled" value="true"/>  
+		<setting name="logImpl" value="LOG4J"/>
+		<setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>	
+        <setting name="safeResultHandlerEnabled" value="false"/>
+        <setting name="defaultExecutorType" value="REUSE"/>
+        <!-- 绝对不能开启，否则insert无法返回id，update/delete 无法得到影响行数-->
+        <!--<setting name="defaultExecutorType" value="BATCH"/>-->
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+	
+	<typeAliases>
+		<package name="com.simbest.cores.common.model"/>
+		<package name="com.simbest.cores.admin.authority.model"/>
+		<package name="com.simbest.cores.admin.task.model"/>	
+		<package name="com.simbest.cores.admin.syslog.model"/>		
+		<package name="com.simbest.cores.app.model"/>
+		<package name="com.simbest.activiti.query.model"/>
+        <package name="com.simbest.activiti.listener.schedule.model"/>
+		<package name="com.simbest.mp.model"/>
+	</typeAliases>
+    <plugins>
+        <!-- com.github.pagehelper为PageHelper类所在包名 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!--支持oracle,mysql,hsqldb-->
+            <property name="helperDialect" value="${database.strategy}"/>
+            <!-- 该参数默认为false -->
+            <!-- 设置为true时，会将RowBounds第一个参数offset当成pageNum页码使用 -->
+            <!-- 和startPage中的pageNum效果一样-->
+            <property name="offsetAsPageNum" value="true"/>
+            <!-- 该参数默认为false -->
+            <!-- 设置为true时，使用RowBounds分页会进行count查询 -->
+            <property name="rowBoundsWithCount" value="true"/>
+        </plugin>
+    </plugins>
+
+	<environments default='development'>
+		<environment id='development'>
+			<transactionManager type='JDBC'/>
+			<dataSource type='POOLED'>
+				<property name='driver' value='${jdbc.driverClassName}'/>
+				<property name='url' value='${jdbc.url}'/>
+				<property name='username' value='${jdbc.username}'/>
+				<property name='password' value='${jdbc.password}'/>
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<!-- Cores Mappers Start
+		<mapper resource='mappers/common/ProcessCodeHolderMapper.xml'/>	
+		<mapper resource='mappers/admin/authority/SysOrgMapper.xml'/>
+		<mapper resource='mappers/admin/authority/SysUserMapper.xml'/>					
+		<mapper resource='mappers/admin/authority/SysRoleMapper.xml'/>	
+		<mapper resource='mappers/admin/authority/SysGroupMapper.xml'/>
+		<mapper resource='mappers/admin/authority/SysPermissionMapper.xml'/>
+		<mapper resource='mappers/admin/task/TaskTriggerDefinitionMapper.xml'/>	
+		<mapper resource='mappers/admin/task/RecordJobRunningResultMapper.xml'/>
+		<mapper resource='mappers/admin/syslog/SysLoginInfoMapper.xml'/>
+		<mapper resource='mappers/admin/syslog/SysOperateInfoMapper.xml'/>
+		<mapper resource='mappers/app/FileUploaderMapper.xml'/>
+		<mapper resource='mappers/app/ProcessTypeMapper.xml'/>
+		<mapper resource='mappers/app/ProcessHeaderMapper.xml'/>
+		<mapper resource='mappers/app/ProcessStepMapper.xml'/>
+		<mapper resource='mappers/app/ProcessStepConfigurationMapper.xml'/>
+		<mapper resource='mappers/app/ProcessStepConditionMapper.xml'/>
+		<mapper resource='mappers/app/ProcessAuditMapper.xml'/>
+		<mapper resource='mappers/app/ProcessAuditLogMapper.xml'/>
+		<mapper resource='mappers/app/ProcessTaskMapper.xml'/>
+        <mapper resource='mappers/app/ProcessTaskCallbackRetryMapper.xml'/>
+        <mapper resource='mappers/app/ProcessTaskCallbackLogMapper.xml'/>
+		<mapper resource='mappers/app/ProcessTrackMapper.xml'/>
+		<mapper resource='mappers/app/ProcessAgentMapper.xml'/>
+		<mapper resource='mappers/app/ProcessStatusMapper.xml'/>
+		<mapper resource='mappers/app/ProcessDraftMapper.xml'/>
+		-->
+		<!-- Cores Mappers End -->
+
+		<!-- Activiti Mappers Start -->
+        <!--
+        <mapper resource='mappers/activiti/ActBusinessStatusMapper.xml'/>
+        <mapper resource='mappers/activiti/ActTaskAssigneMapper.xml'/>
+        <mapper resource='mappers/activiti/TaskCallbackLogMapper.xml'/>
+        <mapper resource='mappers/activiti/TaskCallbackRetryMapper.xml'/>
+        -->
+        <!-- Activiti Mappers End -->
+		
+		<!-- MP Mappers Start 
+		<mapper resource='mappers/MpAccountMapper.xml'/>
+		<mapper resource='mappers/MpMediaMapper.xml'/>
+		<mapper resource='mappers/MpGroupMapper.xml'/>
+		<mapper resource='mappers/MpSceneMapper.xml'/>
+		<mapper resource='mappers/MpUserLocationMapper.xml'/>
+		<mapper resource='mappers/MpActivityMapper.xml'/>
+		<mapper resource='mappers/MpActivitySignMapper.xml'/>-->
+		<!-- MP Mappers End -->
+	</mappers>
+</configuration>

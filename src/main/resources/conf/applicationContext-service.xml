@@ -17,7 +17,7 @@
 		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
 	
-	<context:component-scan base-package="com.simbest.onelog">
+	<context:component-scan base-package="com.simbest.blankweb">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
 		<context:include-filter type="annotation" expression="org.springframework.transaction.annotation.Transactional"/>		
 		<context:include-filter type="regex" expression=".service.*"/>

@@ -161,7 +161,9 @@
  -->   
     <!-- 多重角色验证过滤器 -->
     <bean id="anyRolesAuthorizationFilter" class="com.simbest.cores.web.filter.AnyRolesAuthorizationFilter"/> 
-    	
+	<bean id="logout" class="org.apache.shiro.web.filter.authc.LogoutFilter">
+        <property name="redirectUrl" value="/action/login" />
+    </bean>		
     <bean id="filterChainManager" class="com.simbest.cores.app.authority.CustomDefaultFilterChainManager">
         <property name="loginUrl" value="/action/login"/>
         <property name="successUrl" value="/action/"/>
@@ -181,7 +183,7 @@
 				/action/login/submit = anon
 				/=authc
             	/action/login = authc
-				/action/logout = anon
+				/action/logout = logout
 			    /action/redirect/errors/** = anon				
 				/action/admin/authority/sysuser/updatePassword = user
 				/action/admin/authority/sysuser/submitUpdatePassword = user								
